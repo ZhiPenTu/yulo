@@ -1,0 +1,13 @@
+# 基础镜像
+FROM redis
+# author
+MAINTAINER htcf
+
+# 挂载目录
+VOLUME /home/yulo/redis
+# 创建目录
+RUN mkdir -p /home/yulo/redis
+# 指定路径
+WORKDIR /home/yulo/redis
+# 复制conf文件到路径
+COPY ./conf/redis.conf /home/yulo/redis/redis.conf

@@ -1,0 +1,11 @@
+# 基础镜像
+FROM nginx:stable-alpine3.17
+# author
+MAINTAINER htcf
+
+# 挂载目录
+VOLUME /home/htcf/projects/htcf-web
+# 创建目录
+RUN mkdir -p /home/htcf/projects/htcf-web
+# 指定路径
+WORKDIR /home/htcf/projects/htcf-web

@@ -1,0 +1,14 @@
+# 基础镜像
+FROM openjdk:17.0.2
+# author
+MAINTAINER htcf
+
+# 挂载目录
+VOLUME /home/htcf
+# 创建目录
+RUN mkdir -p /home/htcf
+# 指定路径
+WORKDIR /home/htcf
+
+# 启动代码生成服务
+ENTRYPOINT ["sh", "-c", "java -jar $(ls jar/*.jar | head -n 1)"]
