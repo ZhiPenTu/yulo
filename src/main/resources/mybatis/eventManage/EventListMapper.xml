@@ -41,6 +41,8 @@
             <if test="workerId != null and workerId != ''">and worker_id = #{workerId}</if>
             <if test="falseReport != null">and false_report = #{falseReport}</if>
             <if test="triggerType != null">and trigger_type = #{triggerType}</if>
+            <if test="startTime != null">and start_time >= #{startTime}</if>
+            <if test="endTime != null">and end_time &lt;= #{endTime}</if>
             and report_dec IS NULL
         </where>
 
