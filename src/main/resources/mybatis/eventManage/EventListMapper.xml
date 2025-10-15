@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.eventManage.mapper.EventListMapper">
+
+    <resultMap id="EventListResult" type="com.ruoyi.project.eventManage.domain.EventList">
+        <id property="eventCode" column="event_code"/>
+        <result property="eventType" column="event_type"/>
+        <result property="eventPicurl" column="event_picurl"/>
+        <result property="eventDetail" column="event_detail"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="linkCameraId" column="link_camera_id"/>
+        <result property="mecEventId" column="mec_event_id"/>
+        <result property="workerId" column="worker_id"/>
+        <result property="falseReport" column="false_report"/>
+        <result property="videoUrl" column="video_url"/>
+        <result property="eventPicurlGallery" column="event_picurl_gallery"/>
+        <result property="location" column="location"/>
+        <result property="triggerType" column="trigger_type"/>
+        <result property="reportDec" column="report_dec"/>
+    </resultMap>
+
+    <sql id="baseColumn">
+        event_code, event_type, event_picurl, event_detail, start_time, end_time,
+        link_camera_id, mec_event_id, worker_id, false_report, video_url,
+        event_picurl_gallery, location, trigger_type, report_dec
+    </sql>
+
+    <select id="selectByCode" parameterType="string" resultMap="EventListResult">
+        select <include refid="baseColumn"/>
+        from event_list
+        where event_code = #{eventCode}
+    </select>
+
+    <select id="selectList" parameterType="com.ruoyi.project.eventManage.domain.EventList" resultMap="EventListResult">
+        select <include refid="baseColumn"/>
+        from event_list
+        <where>
+            <if test="eventType != null and eventType != ''">and event_type = #{eventType}</if>
+            <if test="linkCameraId != null and linkCameraId != ''">and link_camera_id = #{linkCameraId}</if>
+            <if test="workerId != null and workerId != ''">and worker_id = #{workerId}</if>
+            <if test="falseReport != null">and false_report = #{falseReport}</if>
+            <if test="triggerType != null">and trigger_type = #{triggerType}</if>
+            and report_dec IS NULL
+        </where>
+
+        order by start_time desc
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.project.eventManage.domain.EventList">
+        insert into event_list(
+            <include refid="baseColumn"/>
+        ) values (
+            #{eventCode}, #{eventType}, #{eventPicurl}, #{eventDetail}, #{startTime}, #{endTime},
+            #{linkCameraId}, #{mecEventId}, #{workerId}, #{falseReport}, #{videoUrl},
+            #{eventPicurlGallery}, #{location}, #{triggerType}, #{reportDec}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.project.eventManage.domain.EventList">
+        update event_list
+        <set>
+            <if test="eventType != null">event_type = #{eventType},</if>
+            <if test="eventPicurl != null">event_picurl = #{eventPicurl},</if>
+            <if test="eventDetail != null">event_detail = #{eventDetail},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="linkCameraId != null">link_camera_id = #{linkCameraId},</if>
+            <if test="mecEventId != null">mec_event_id = #{mecEventId},</if>
+            <if test="workerId != null">worker_id = #{workerId},</if>
+            <if test="falseReport != null">false_report = #{falseReport},</if>
+            <if test="videoUrl != null">video_url = #{videoUrl},</if>
+            <if test="eventPicurlGallery != null">event_picurl_gallery = #{eventPicurlGallery},</if>
+            <if test="location != null">location = #{location},</if>
+            <if test="triggerType != null">trigger_type = #{triggerType},</if>
+            <if test="reportDec != null">report_dec = #{reportDec},</if>
+        </set>
+        where event_code = #{eventCode}
+    </update>
+
+</mapper>
