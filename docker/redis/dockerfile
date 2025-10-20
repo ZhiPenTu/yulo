@@ -1,5 +1,5 @@
 # 基础镜像
-FROM redis
+FROM dockerhub.kubekey.htcf/redis/redis:7.4.5
 # author
 MAINTAINER htcf
 
