@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>摄像头拉流功能测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .success {
+            background-color: #28a745;
+        }
+        .danger {
+            background-color: #dc3545;
+        }
+        .warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+        .result.success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .result.error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .video-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+        video {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>摄像头拉流功能测试</h1>
+        
+        <div class="form-group">
+            <label for="cameraCode">摄像头编号:</label>
+            <input type="text" id="cameraCode" value="test_camera_001" placeholder="请输入摄像头编号">
+        </div>
+        
+        <div class="form-group">
+            <label for="videoSource">视频源地址:</label>
+            <input type="text" id="videoSource" value="rtsp://admin:password@192.168.1.100:554/stream1" placeholder="请输入RTSP地址">
+        </div>
+        
+        <div class="form-group">
+            <label for="mediaProxy">媒体代理:</label>
+            <select id="mediaProxy">
+                <option value="rotanova_server_node">rotanova_server_node</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <button onclick="startStream()">开始拉流</button>
+            <button onclick="stopStream()" class="danger">停止拉流</button>
+            <button onclick="getStreamStatus()" class="warning">查询状态</button>
+        </div>
+        
+        <div id="result" class="result"></div>
+        
+        <div class="video-container">
+            <h3>视频播放</h3>
+            <video id="videoPlayer" controls style="display: none;">
+                您的浏览器不支持视频播放。
+            </video>
+            <p id="videoInfo" style="color: #666;">请先开始拉流，然后点击查询状态获取播放地址</p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080';
+        
+        function showResult(message, isSuccess = true) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = message;
+            resultDiv.className = `result ${isSuccess ? 'success' : 'error'}`;
+            resultDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                resultDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        function getFormData() {
+            return {
+                cameraCode: document.getElementById('cameraCode').value,
+                videoSource: document.getElementById('videoSource').value,
+                mediaProxy: document.getElementById('mediaProxy').value
+            };
+        }
+        
+        async function startStream() {
+            const data = getFormData();
+            
+            if (!data.cameraCode || !data.videoSource) {
+                showResult('请填写摄像头编号和视频源地址', false);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/device/camera/startStream`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.code === 200) {
+                    showResult('开始拉流成功！');
+                    setTimeout(() => getStreamStatus(), 2000); // 2秒后自动查询状态
+                } else {
+                    showResult(`开始拉流失败: ${result.msg}`, false);
+                }
+            } catch (error) {
+                showResult(`请求失败: ${error.message}`, false);
+            }
+        }
+        
+        async function stopStream() {
+            const data = getFormData();
+            
+            if (!data.cameraCode) {
+                showResult('请填写摄像头编号', false);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/device/camera/stopStream`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.code === 200) {
+                    showResult('停止拉流成功！');
+                    document.getElementById('videoPlayer').style.display = 'none';
+                    document.getElementById('videoInfo').textContent = '拉流已停止';
+                } else {
+                    showResult(`停止拉流失败: ${result.msg}`, false);
+                }
+            } catch (error) {
+                showResult(`请求失败: ${error.message}`, false);
+            }
+        }
+        
+        async function getStreamStatus() {
+            const cameraCode = document.getElementById('cameraCode').value;
+            
+            if (!cameraCode) {
+                showResult('请填写摄像头编号', false);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/device/camera/streamStatus/${cameraCode}`);
+                const result = await response.json();
+                
+                if (result.code === 200) {
+                    const status = result.data;
+                    showResult(`拉流状态: ${status.message}`);
+                    
+                    if (status.status === 'active' && status.streamUrl) {
+                        document.getElementById('videoInfo').textContent = `播放地址: ${status.streamUrl}`;
+                        const video = document.getElementById('videoPlayer');
+                        video.src = status.streamUrl;
+                        video.style.display = 'block';
+                    } else {
+                        document.getElementById('videoPlayer').style.display = 'none';
+                        document.getElementById('videoInfo').textContent = '当前无活跃流';
+                    }
+                } else {
+                    showResult(`查询状态失败: ${result.msg}`, false);
+                }
+            } catch (error) {
+                showResult(`请求失败: ${error.message}`, false);
+            }
+        }
+        
+        // 页面加载完成后自动查询状态
+        window.onload = function() {
+            const cameraCode = document.getElementById('cameraCode').value;
+            if (cameraCode) {
+                getStreamStatus();
+            }
+        };
+    </script>
+</body>
+</html>

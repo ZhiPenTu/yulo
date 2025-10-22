@@ -147,3 +147,11 @@ gen:
   tablePrefix: sys_
   # 是否允许生成文件覆盖到本地（自定义路径），默认不允许
   allowOverwrite: false
+
+# ZLMediaKit配置
+zlmediakit:
+  server:
+    # ZLMediaKit服务器地址
+    url: http://35.46.5.76:8080
+    # ZLMediaKit API密钥
+    secret: MKjn33mg82zrW8TIleMSDlbdxhmhP6yZ
