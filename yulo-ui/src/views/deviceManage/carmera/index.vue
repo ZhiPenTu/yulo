@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryRef" v-show="showSearch" :inline="true" label-width="68px">
+    <el-form :model="queryParams" ref="queryRef" v-show="showSearch" :inline="true" label-width="100px">
       <el-form-item label="摄像头编号" prop="cameraCode">
         <el-input
           v-model="queryParams.cameraCode"
@@ -78,6 +78,7 @@
         <template #default="scope">
           <span>{{ scope.row.videoSource }}</span>
           <el-button
+           v-if="scope.row.streamStatus == 'active'"
             type="text"
             icon="VideoPlay"
             @click="handlePlayVideo(scope.row)"
@@ -110,14 +111,14 @@
             icon="VideoPlay"
             @click="handleStartStream(scope.row)"
             v-hasPermi="['device:camera:stream']"
-            :disabled="scope.row.streamStatus === 'active'"
+            v-if="scope.row.streamStatus !== 'active'"
           >开始拉流</el-button>
           <el-button
             type="text"
             icon="VideoPause"
             @click="handleStopStream(scope.row)"
             v-hasPermi="['device:camera:stream']"
-            :disabled="scope.row.streamStatus !== 'active'"
+            v-if="scope.row.streamStatus == 'active'"
           >停止拉流</el-button>
           <el-button
             type="text"

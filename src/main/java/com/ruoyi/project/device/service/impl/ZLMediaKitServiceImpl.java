@@ -46,10 +46,10 @@ public class ZLMediaKitServiceImpl implements IZLMediaKitService
             params.put("app", "live");
             params.put("stream", streamRequest.getCameraCode());
             params.put("url", streamRequest.getVideoSource());
-            params.put("enable_rtsp", 1);
+            params.put("enable_rtsp", 0);
             params.put("enable_rtmp", 1);
-            params.put("enable_hls", 1);
-            params.put("enable_mp4", 1);
+            params.put("enable_hls", 0);
+            params.put("enable_mp4", 0);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);

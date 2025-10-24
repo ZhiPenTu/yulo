@@ -19,10 +19,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="updateBy"     column="update_by"    />
         <result property="updateTime"   column="update_time"  />
         <result property="remark"       column="remark"       />
+        <result property="aiFunction"   column="ai_function"  />
+        <result property="regions"      column="regions"      />
+        <result property="cameraUrl"    column="camera_url"   />
+        <result property="backgroundSnap" column="background_snap" />
+        <result property="lanes"        column="lanes"        />
     </resultMap>
 
     <sql id="selectCameraVo">
-        select id, camera_code, camera_name, video_source, media_proxy, radar_code, coordinates, camera_info, status, create_by, create_time, update_by, update_time, remark from camera
+        select id, camera_code, camera_name, video_source, media_proxy, radar_code, coordinates, camera_info, status, create_by, create_time, update_by, update_time, remark, ai_function, regions, camera_url, background_snap, lanes from camera
     </sql>
 
     <select id="selectCameraList" parameterType="Camera" resultMap="CameraResult">
@@ -60,6 +65,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateBy != null">update_by,</if>
             <if test="updateTime != null">update_time,</if>
             <if test="remark != null">remark,</if>
+            <if test="aiFunction != null">ai_function,</if>
+            <if test="regions != null">regions,</if>
+            <if test="cameraUrl != null">camera_url,</if>
+            <if test="backgroundSnap != null">background_snap,</if>
+            <if test="lanes != null">lanes,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="cameraCode != null and cameraCode != ''">#{cameraCode},</if>
@@ -75,6 +85,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateBy != null">#{updateBy},</if>
             <if test="updateTime != null">#{updateTime},</if>
             <if test="remark != null">#{remark},</if>
+            <if test="aiFunction != null">#{aiFunction},</if>
+            <if test="regions != null">#{regions},</if>
+            <if test="cameraUrl != null">#{cameraUrl},</if>
+            <if test="backgroundSnap != null">#{backgroundSnap},</if>
+            <if test="lanes != null">#{lanes},</if>
          </trim>
     </insert>
 
@@ -94,6 +109,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateBy != null">update_by = #{updateBy},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
             <if test="remark != null">remark = #{remark},</if>
+            <if test="aiFunction != null">ai_function = #{aiFunction},</if>
+            <if test="regions != null">regions = #{regions},</if>
+            <if test="cameraUrl != null">camera_url = #{cameraUrl},</if>
+            <if test="backgroundSnap != null">background_snap = #{backgroundSnap},</if>
+            <if test="lanes != null">lanes = #{lanes},</if>
         </trim>
         where id = #{id}
     </update>
