@@ -167,4 +167,30 @@ public class CameraController extends BaseController
         StreamStatusDto status = zlMediaKitService.getStreamStatus(cameraCode);
         return AjaxResult.success(status);
     }
+
+    /**
+     * 检查摄像头在线状态
+     */
+    @PreAuthorize("@ss.hasPermi('device:camera:query')")
+    @GetMapping("/checkOnlineStatus/{id}")
+    public AjaxResult checkOnlineStatus(@PathVariable("id") Long id)
+    {
+        Camera camera = cameraService.selectCameraById(id);
+        if (camera == null) {
+            return AjaxResult.error("摄像头不存在");
+        }
+        
+        boolean isOnline = cameraService.checkCameraOnlineStatus(camera);
+        return AjaxResult.success(isOnline);
+    }
+
+    /**
+     * 批量检查摄像头在线状态
+     */
+    @PreAuthorize("@ss.hasPermi('device:camera:query')")
+    @PostMapping("/batchCheckOnlineStatus")
+    public AjaxResult batchCheckOnlineStatus(@RequestBody Long[] ids)
+    {
+        return AjaxResult.success(cameraService.batchCheckOnlineStatus(ids));
+    }
 }

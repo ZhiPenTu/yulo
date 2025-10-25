@@ -68,3 +68,20 @@ export function getStreamStatus(cameraCode) {
     method: 'get'
   })
 }
+
+// 检查摄像头在线状态
+export function checkOnlineStatus(id) {
+  return request({
+    url: '/device/camera/checkOnlineStatus/' + id,
+    method: 'get'
+  })
+}
+
+// 批量检查摄像头在线状态
+export function batchCheckOnlineStatus(ids) {
+  return request({
+    url: '/device/camera/batchCheckOnlineStatus',
+    method: 'post',
+    data: ids
+  })
+}

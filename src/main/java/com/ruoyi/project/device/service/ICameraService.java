@@ -66,4 +66,20 @@ public interface ICameraService
      * @return 结果
      */
     public boolean checkCameraCodeUnique(Camera camera);
+
+    /**
+     * 检查摄像头在线状态
+     *
+     * @param camera 摄像头信息
+     * @return 是否在线
+     */
+    public boolean checkCameraOnlineStatus(Camera camera);
+
+    /**
+     * 批量检查摄像头在线状态
+     *
+     * @param ids 摄像头ID数组
+     * @return 在线状态Map，key为摄像头ID，value为在线状态
+     */
+    public java.util.Map<Long, Boolean> batchCheckOnlineStatus(Long[] ids);
 }

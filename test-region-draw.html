@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>区域绘制功能测试</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+    }
+
+    .main-content {
+      display: flex;
+      gap: 20px;
+    }
+
+    .video-section {
+      flex: 1;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .video-header {
+      display: flex;
+      justify-content: space-between;
+      padding: 15px 20px;
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+    }
+
+    .camera-name {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .timestamp {
+      font-size: 16px;
+    }
+
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      height: 600px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    video {
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    canvas {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      cursor: crosshair;
+    }
+
+    .control-panel {
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .control-section {
+      background: #f5f7fa;
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    .control-section h3 {
+      margin-bottom: 15px;
+      color: #333;
+      font-size: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #606266;
+      font-size: 14px;
+    }
+
+    select, input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #dcdfe6;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: #409eff;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #66b1ff;
+    }
+
+    .btn-success {
+      background: #67c23a;
+      color: #fff;
+    }
+
+    .btn-success:hover {
+      background: #85ce61;
+    }
+
+    .btn-warning {
+      background: #e6a23c;
+      color: #fff;
+    }
+
+    .btn-warning:hover {
+      background: #ebb563;
+    }
+
+    .btn-danger {
+      background: #f56c6c;
+      color: #fff;
+    }
+
+    .btn-danger:hover {
+      background: #f78989;
+    }
+
+    .btn-default {
+      background: #fff;
+      color: #606266;
+      border: 1px solid #dcdfe6;
+    }
+
+    .btn-default:hover {
+      background: #f5f7fa;
+    }
+
+    .btn-block {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    .region-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 15px;
+      background: #fff;
+      border-radius: 4px;
+      min-height: 120px;
+    }
+
+    .region-item {
+      position: relative;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #409eff;
+      color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 20px;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+
+    .region-item:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .region-item.active {
+      background: #67c23a;
+      box-shadow: 0 0 0 3px rgba(103, 194, 58, 0.3);
+    }
+
+    .region-item.placeholder {
+      background: #dcdfe6;
+      cursor: default;
+    }
+
+    .region-item.placeholder:hover {
+      transform: none;
+      box-shadow: none;
+    }
+
+    .delete-btn {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      width: 24px;
+      height: 24px;
+      background: #f56c6c;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      cursor: pointer;
+    }
+
+    .region-item:hover .delete-btn {
+      opacity: 1;
+    }
+
+    .status-bar {
+      padding: 10px;
+      background: #e6f7ff;
+      border-left: 4px solid #1890ff;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+
+    .status-bar.success {
+      background: #f6ffed;
+      border-left-color: #52c41a;
+    }
+
+    .status-bar.warning {
+      background: #fffbe6;
+      border-left-color: #faad14;
+    }
+
+    .status-bar.error {
+      background: #fff2f0;
+      border-left-color: #ff4d4f;
+    }
+
+    .info-text {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>区域绘制功能测试</h1>
+    
+    <div class="status-bar" id="statusBar">
+      <p class="info-text" id="statusText">准备就绪，请选择区域类型并开始绘制</p>
+    </div>
+
+    <div class="main-content">
+      <!-- 视频播放区域 -->
+      <div class="video-section">
+        <div class="video-header">
+          <span class="camera-name">G15福泉AK10+720</span>
+          <span class="timestamp" id="timestamp"></span>
+        </div>
+        <div class="video-wrapper">
+          <video id="video" autoplay muted loop>
+            <source src="http://35.46.5.76:8080/live/350000007132901001.live.mp4" type="video/mp4">
+            您的浏览器不支持视频播放
+          </video>
+          <canvas id="canvas"></canvas>
+        </div>
+      </div>
+
+      <!-- 控制面板 -->
+      <div class="control-panel">
+        <!-- 区域类型选择 -->
+        <div class="control-section">
+          <h3>区域类型选择</h3>
+          <div class="form-group">
+            <label>当前绘制区域：</label>
+            <select id="regionType">
+              <option value="">请选择区域类型</option>
+              <option value="Lane">车道区</option>
+              <option value="line_type.diagonal_line">实线</option>
+              <option value="congestion_area">拥堵区</option>
+              <option value="lane_type.disjoint_lane">禁行区</option>
+              <option value="person_invasion">人、非机械禁区</option>
+              <option value="vehicle_mask_area">车辆屏蔽区</option>
+              <option value="congestion_stat_area">拥堵统计区</option>
+              <option value="parking_area">禁停区</option>
+            </select>
+          </div>
+          <button class="btn-primary btn-block" onclick="addRegion()">新增区域</button>
+        </div>
+
+        <!-- 区域列表 -->
+        <div class="control-section">
+          <h3>区域列表</h3>
+          <div class="region-list" id="regionList">
+            <div class="region-item placeholder">99</div>
+          </div>
+        </div>
+
+        <!-- 绘制控制 -->
+        <div class="control-section">
+          <h3>绘制控制</h3>
+          <button class="btn-success btn-block" id="startDrawBtn" onclick="startDrawing()">开始绘制</button>
+          <button class="btn-warning btn-block" id="endDrawBtn" onclick="endDrawing()" disabled>结束绘制</button>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="control-section">
+          <button class="btn-success btn-block" onclick="saveRegions()">保存区域</button>
+          <button class="btn-default btn-block" onclick="clearAll()">清空所有</button>
+          <button class="btn-danger btn-block" onclick="exportData()">导出数据</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 全局变量
+    let regions = [];
+    let selectedRegionIndex = null;
+    let isDrawing = false;
+    let currentPoints = [];
+    let canvas, ctx, video;
+
+    // 区域类型映射
+    const regionTypeMap = {
+      'Lane': '车道区',
+      'line_type.diagonal_line': '实线',
+      'congestion_area': '拥堵区',
+      'lane_type.disjoint_lane': '禁行区',
+      'person_invasion': '人、非机械禁区',
+      'vehicle_mask_area': '车辆屏蔽区',
+      'congestion_stat_area': '拥堵统计区',
+      'parking_area': '禁停区'
+    };
+
+    // 初始化
+    window.onload = function() {
+      canvas = document.getElementById('canvas');
+      ctx = canvas.getContext('2d');
+      video = document.getElementById('video');
+
+      // 更新时间戳
+      updateTimestamp();
+      setInterval(updateTimestamp, 1000);
+
+      // 视频加载完成后设置画布尺寸
+      video.addEventListener('loadedmetadata', function() {
+        canvas.width = video.videoWidth || 1920;
+        canvas.height = video.videoHeight || 1080;
+        drawAllRegions();
+      });
+
+      // 画布点击事件
+      canvas.addEventListener('click', handleCanvasClick);
+    };
+
+    // 更新时间戳
+    function updateTimestamp() {
+      const now = new Date();
+      const timestamp = now.toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      }).replace(/\//g, '-');
+      document.getElementById('timestamp').textContent = timestamp;
+    }
+
+    // 更新状态栏
+    function updateStatus(message, type = 'info') {
+      const statusBar = document.getElementById('statusBar');
+      const statusText = document.getElementById('statusText');
+      
+      statusBar.className = 'status-bar ' + type;
+      statusText.textContent = message;
+    }
+
+    // 新增区域
+    function addRegion() {
+      const regionType = document.getElementById('regionType').value;
+      
+      if (!regionType) {
+        updateStatus('请先选择区域类型', 'warning');
+        return;
+      }
+
+      const newRegion = {
+        id: regions.length + 1,
+        type: regionType,
+        typeName: regionTypeMap[regionType],
+        points: [],
+        direction: 'up',
+        laneType: 'lane',
+        minSpeed: null,
+        maxSpeed: null
+      };
+
+      regions.push(newRegion);
+      selectedRegionIndex = regions.length - 1;
+      
+      updateRegionList();
+      updateStatus(`区域 ${newRegion.id} (${newRegion.typeName}) 添加成功，请选中后开始绘制`, 'success');
+    }
+
+    // 更新区域列表
+    function updateRegionList() {
+      const regionList = document.getElementById('regionList');
+      regionList.innerHTML = '';
+
+      regions.forEach((region, index) => {
+        const item = document.createElement('div');
+        item.className = 'region-item' + (index === selectedRegionIndex ? ' active' : '');
+        item.textContent = region.id;
+        item.onclick = () => selectRegion(index);
+
+        const deleteBtn = document.createElement('div');
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.textContent = '×';
+        deleteBtn.onclick = (e) => {
+          e.stopPropagation();
+          deleteRegion(index);
+        };
+
+        item.appendChild(deleteBtn);
+        regionList.appendChild(item);
+      });
+
+      // 添加占位符
+      const placeholder = document.createElement('div');
+      placeholder.className = 'region-item placeholder';
+      placeholder.textContent = '99';
+      regionList.appendChild(placeholder);
+    }
+
+    // 选中区域
+    function selectRegion(index) {
+      if (isDrawing) {
+        updateStatus('请先结束当前绘制', 'warning');
+        return;
+      }
+      
+      selectedRegionIndex = index;
+      updateRegionList();
+      drawAllRegions();
+      updateStatus(`已选中区域 ${regions[index].id} (${regions[index].typeName})`, 'info');
+    }
+
+    // 删除区域
+    function deleteRegion(index) {
+      regions.splice(index, 1);
+      
+      // 重新编号
+      regions.forEach((region, idx) => {
+        region.id = idx + 1;
+      });
+
+      if (selectedRegionIndex === index) {
+        selectedRegionIndex = null;
+      } else if (selectedRegionIndex > index) {
+        selectedRegionIndex--;
+      }
+
+      updateRegionList();
+      drawAllRegions();
+      updateStatus('区域已删除', 'success');
+    }
+
+    // 开始绘制
+    function startDrawing() {
+      if (selectedRegionIndex === null) {
+        updateStatus('请先选择一个区域', 'warning');
+        return;
+      }
+
+      if (isDrawing) {
+        updateStatus('已经在绘制中', 'warning');
+        return;
+      }
+
+      isDrawing = true;
+      currentPoints = [];
+      
+      document.getElementById('startDrawBtn').disabled = true;
+      document.getElementById('endDrawBtn').disabled = false;
+      
+      updateStatus('开始绘制，点击视频画面标记区域顶点（至少3个点）', 'info');
+    }
+
+    // 结束绘制
+    function endDrawing() {
+      if (!isDrawing) {
+        updateStatus('当前没有在绘制', 'warning');
+        return;
+      }
+
+      if (currentPoints.length < 3) {
+        updateStatus('至少需要标记3个点', 'warning');
+        return;
+      }
+
+      // 保存当前绘制的点到选中的区域
+      regions[selectedRegionIndex].points = [...currentPoints];
+
+      isDrawing = false;
+      currentPoints = [];
+
+      document.getElementById('startDrawBtn').disabled = false;
+      document.getElementById('endDrawBtn').disabled = true;
+
+      drawAllRegions();
+      updateStatus(`区域 ${regions[selectedRegionIndex].id} 绘制完成，已缓存到本地`, 'success');
+    }
+
+    // 画布点击事件
+    function handleCanvasClick(event) {
+      if (!isDrawing) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+
+      const x = (event.clientX - rect.left) * scaleX;
+      const y = (event.clientY - rect.top) * scaleY;
+
+      currentPoints.push([x, y]);
+      drawAllRegions();
+      
+      updateStatus(`已标记第 ${currentPoints.length} 个点`, 'info');
+    }
+
+    // 绘制所有区域
+    function drawAllRegions() {
+      // 清空画布
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // 绘制已保存的区域
+      regions.forEach((region, index) => {
+        if (region.points && region.points.length > 0) {
+          drawPolygon(region.points, index === selectedRegionIndex, region.id);
+        }
+      });
+
+      // 绘制当前正在绘制的点
+      if (isDrawing && currentPoints.length > 0) {
+        drawPolygon(currentPoints, true, null, true);
+      }
+    }
+
+    // 绘制多边形
+    function drawPolygon(points, isSelected, regionId, isDrawing = false) {
+      if (points.length === 0) return;
+
+      ctx.beginPath();
+      ctx.moveTo(points[0][0], points[0][1]);
+
+      for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i][0], points[i][1]);
+      }
+
+      if (!isDrawing) {
+        ctx.closePath();
+      }
+
+      // 填充
+      ctx.fillStyle = isSelected ? 'rgba(64, 158, 255, 0.3)' : 'rgba(82, 196, 26, 0.2)';
+      ctx.fill();
+
+      // 边框
+      ctx.strokeStyle = isSelected ? '#409eff' : '#52c41a';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // 绘制顶点
+      points.forEach((point, index) => {
+        ctx.beginPath();
+        ctx.arc(point[0], point[1], 5, 0, 2 * Math.PI);
+        ctx.fillStyle = isSelected ? '#409eff' : '#52c41a';
+        ctx.fill();
+
+        // 绘制顶点序号
+        if (isDrawing) {
+          ctx.fillStyle = '#fff';
+          ctx.font = '14px Arial';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(index + 1, point[0], point[1]);
+        }
+      });
+
+      // 绘制区域ID
+      if (regionId && points.length > 0) {
+        const centerX = points.reduce((sum, p) => sum + p[0], 0) / points.length;
+        const centerY = points.reduce((sum, p) => sum + p[1], 0) / points.length;
+
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 20px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(regionId, centerX, centerY);
+      }
+    }
+
+    // 保存区域
+    function saveRegions() {
+      if (regions.length === 0) {
+        updateStatus('请先添加并绘制区域', 'warning');
+        return;
+      }
+
+      const undrawnRegions = regions.filter(r => !r.points || r.points.length === 0);
+      if (undrawnRegions.length > 0) {
+        updateStatus('还有区域未绘制完成', 'warning');
+        return;
+      }
+
+      // 模拟保存到数据库
+      console.log('保存区域数据:', JSON.stringify(regions, null, 2));
+      updateStatus('区域保存成功！数据已输出到控制台', 'success');
+    }
+
+    // 清空所有
+    function clearAll() {
+      if (confirm('确定要清空所有区域吗？')) {
+        regions = [];
+        selectedRegionIndex = null;
+        isDrawing = false;
+        currentPoints = [];
+        
+        updateRegionList();
+        drawAllRegions();
+        updateStatus('已清空所有区域', 'success');
+      }
+    }
+
+    // 导出数据
+    function exportData() {
+      if (regions.length === 0) {
+        updateStatus('没有可导出的数据', 'warning');
+        return;
+      }
+
+      const dataStr = JSON.stringify(regions, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'regions_' + Date.now() + '.json';
+      link.click();
+      
+      URL.revokeObjectURL(url);
+      updateStatus('数据导出成功', 'success');
+    }
+  </script>
+</body>
+</html>
